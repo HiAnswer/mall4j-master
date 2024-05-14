@@ -28,6 +28,7 @@ import com.yami.shop.dao.ProductMapper;
 import com.yami.shop.dao.SkuMapper;
 import com.yami.shop.service.AttachFileService;
 import com.yami.shop.service.ProductService;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,21 +40,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * @author lanhai
  */
 @Service
+@AllArgsConstructor
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements ProductService {
 
-    @Autowired
+
     private ProductMapper productMapper;
-    @Autowired
+
     private SkuMapper skuMapper;
-    @Autowired
+
     private AttachFileService attachFileService;
-    @Autowired
+
     private ProdTagReferenceMapper prodTagReferenceMapper;
 
     private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
@@ -63,6 +67,22 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public void saveProduct(Product product) {
         productMapper.insert(product);
         if (CollectionUtil.isNotEmpty(product.getSkuList())) {
+            List<Sku> skuList = product.getSkuList();
+            skuList.forEach(a->{
+                String skuName = a.getSkuName();
+                // 使用正则表达式匹配字母和数字部分
+                Pattern pattern = Pattern.compile("[a-zA-Z0-9]+");
+                Matcher matcher = pattern.matcher(skuName);
+                StringBuilder sb = new StringBuilder();
+                while (matcher.find()) {
+                    sb.append(matcher.group());
+                    sb.append("-");
+                }
+                // 删除最后一个连字符
+                sb.deleteCharAt(sb.length() - 1);
+                String result = sb.toString();
+                a.setSkuName(result);
+            });
             skuMapper.insertBatch(product.getProdId(), product.getSkuList());
         }
         prodTagReferenceMapper.insertBatch(product.getShopId(), product.getProdId(), product.getTagList());

@@ -14,9 +14,11 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.yami.shop.bean.model.ProdProp;
 import com.yami.shop.bean.model.Product;
 import com.yami.shop.bean.model.Sku;
 import com.yami.shop.bean.param.ProductParam;
+import com.yami.shop.bean.param.StocksParam;
 import com.yami.shop.common.exception.YamiShopBindException;
 import com.yami.shop.common.response.ServerResponseEntity;
 import com.yami.shop.common.util.Json;
@@ -27,6 +29,7 @@ import com.yami.shop.service.ProdTagReferenceService;
 import com.yami.shop.service.ProductService;
 import com.yami.shop.service.SkuService;
 import cn.hutool.core.bean.BeanUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +47,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/prod/prod")
+@AllArgsConstructor
 public class ProductController {
 
     @Autowired
@@ -92,6 +96,24 @@ public class ProductController {
         prod.setTagList(listTagId);
         return ServerResponseEntity.success(prod);
     }
+
+    /**
+     * 批量设置库存
+     */
+    @PostMapping("/stocksList")
+    //@PreAuthorize("@pms.hasPermission('prod:prod:stocksList')")
+    public ServerResponseEntity<String> stocksList(@Valid @RequestBody StocksParam stocksParam) {
+        for (Long prodProp: stocksParam.getProdId()) {
+            List<Sku> skuList = skuService.listByProdId(prodProp);
+            skuList.forEach(a->{
+                a.setStocks(stocksParam.getStocks());
+                a.setOriPrice(stocksParam.getOriPrice());
+            });
+            skuService.updateBatchById(skuList);
+        }
+        return ServerResponseEntity.success();
+    }
+
 
     /**
      * 保存

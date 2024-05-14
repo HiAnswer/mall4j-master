@@ -197,7 +197,7 @@
     </foreach>
   </update>
 
-    <select id="listOrdersDetailByOrder" resultMap="orderAndOrderItemAndUserAddrMap">
+    <select id="listOrdersDetailByOrder" parameterType="com.yami.shop.bean.model.Order" resultMap="orderAndOrderItemAndUserAddrMap">
         select o.*,oi.*,oi.prod_name as item_prod_name,uao.* from tz_order o
         left join tz_order_item oi on o.order_number = oi.order_number
         left join tz_user_addr_order uao on o.addr_order_id = uao.addr_order_id

@@ -11,11 +11,13 @@
 package com.yami.shop.api.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.yami.shop.bean.app.dto.ProdPropDto;
 import com.yami.shop.bean.app.dto.ProductDto;
 import com.yami.shop.bean.app.dto.TagProductDto;
 import com.yami.shop.bean.model.Product;
 import com.yami.shop.bean.model.Sku;
 import com.yami.shop.bean.model.Transport;
+import com.yami.shop.bean.param.ProductParam;
 import com.yami.shop.common.response.ServerResponseEntity;
 import com.yami.shop.common.util.Json;
 import com.yami.shop.common.util.PageParam;
@@ -27,12 +29,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.bean.BeanUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -127,5 +129,17 @@ public class ProdController {
     public ServerResponseEntity<List<TagProductDto>> getTagProdList() {
         List<TagProductDto> productDtoList = prodService.tagProdList();
         return ServerResponseEntity.success(productDtoList);
+    }
+
+    /**
+     * 新增用户填写功能
+     * @return
+     */
+    @PostMapping
+    @PreAuthorize("@pms.hasPermission('prod:prod:save')")
+    public ServerResponseEntity<String> save(@Valid @RequestBody ProdPropDto prodPropDto) {
+
+        return ServerResponseEntity.success();
+
     }
 }

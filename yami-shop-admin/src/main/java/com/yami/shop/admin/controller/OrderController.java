@@ -197,7 +197,7 @@ public class OrderController {
                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime, HttpServletResponse response) {
         Long shopId = SecurityUtils.getSysUser().getShopId();
         order.setShopId(shopId);
-        order.setIsPayed(1);
+        /*order.setIsPayed(1);*/
         List<Order> orders = orderService.listOrdersDetailByOrder(order, startTime, endTime);
 
         //通过工具类创建writer
@@ -247,6 +247,8 @@ public class OrderController {
             mergeIfNeed(writer, firstRow, lastRow, ++col, col, dbOrder.getFreightAmount());
             // 订单实付
             mergeIfNeed(writer, firstRow, lastRow, ++col, col, dbOrder.getActualTotal());
+           /* //订单状态
+            mergeIfNeed(writer, firstRow, lastRow, ++col, col, dbOrder.getStatus());*/
 
         }
         writeExcel(response, writer);
